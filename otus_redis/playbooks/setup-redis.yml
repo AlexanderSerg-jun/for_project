@@ -1,0 +1,16 @@
+---
+    - name: setup 6379
+      become: true
+      hosts: redis
+      roles: 
+        - ansible-role-redis
+      vars:
+        redis_port: 6379        
+
+
+
+
+# Run this command after ansible setup
+
+
+#redis-cli --cluster create 192.168.56.10:6379 192.168.56.11:6379 192.168.56.12:6379 192.168.56.13:6379 192.168.56.14:6379 192.168.56.15:6379  --cluster-replicas 1

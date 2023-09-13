@@ -1,0 +1,11 @@
+---
+- name: Setup Redis
+  hosts: redis 
+  become: true
+  tasks:
+    - name: Disable SELinux
+      selinux:
+        state: disabled
+ 
+
+ 

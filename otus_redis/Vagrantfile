@@ -1,0 +1,68 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+boxes = [
+    {
+        :name => "redis1",
+        :eth1 => "192.168.56.10",
+        :mem => "4096",
+        :cpu => "2",
+        :hostport=>6379
+    },
+    {
+      :name => "redis2",
+      :eth1 => "192.168.56.11",
+      :mem => "4096",
+      :cpu => "2",
+      :hostport=>6380
+  },
+  {
+    :name => "redis3",
+    :eth1 => "192.168.56.12",
+    :mem => "4096",
+    :cpu => "2",
+    :hostport=>6381
+}
+]
+
+Vagrant.configure("2") do |config|
+
+    config.vm.box = "centos/7"
+    config.vm.provider "virtualbox" do |vb|
+        vb.memory = 4000
+        vb.cpus = 4
+        vb.customize ["storageattach", :id, 
+                      "--storagectl", "IDE", 
+                      "--port", "0", "--device", "1", 
+                      "--type", "dvddrive", 
+                      "--medium", "emptydrive"]    
+      end     
+
+     
+      boxes.each do |opts|
+        config.vm.define opts[:name] do |config|
+          config.vm.hostname = opts[:name]
+    
+          config.vm.network "forwarded_port", guest: 6379, host: opts[:hostport] 
+    
+          config.vm.provider "virtualbox" do |v|
+            v.customize ["modifyvm", :id, "--name", opts[:name]]
+            v.customize ["modifyvm", :id, "--memory", opts[:mem]]
+            v.customize ["modifyvm", :id, "--cpus", opts[:cpu]]
+          end
+    
+          config.vm.provision "ansible" do |ansible|
+    
+            ansible.playbook = "playbooks/setup-redis.yml"
+            ansible.inventory_path = "ansible/hosts"
+            ansible.host_key_checking = "false"
+            ansible.become = "true"
+
+          config.vm.network :private_network, ip: opts[:eth1]
+        end
+      end
+    end
+  
+  
+  end
+  
