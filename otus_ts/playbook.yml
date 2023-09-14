@@ -1,0 +1,23 @@
+---
+- hosts: web
+
+  gather_facts: yes
+
+ 
+  roles:
+    - nginx
+    
+ 
+
+- hosts: redis
+  name: setup 6379
+  become: true
+  
+  roles: 
+    - redis
+  
+    
+  vars:
+    redis_port: 6379  
+  handlers:
+    - include: handlers/main.yml  
